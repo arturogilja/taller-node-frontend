@@ -7,5 +7,5 @@ async function makeRequest(url, method, data, token) {
     },
     body: JSON.stringify(data) // body data type must match "Content-Type" header
   });
-  return await response.json();
+  return response;
 }
