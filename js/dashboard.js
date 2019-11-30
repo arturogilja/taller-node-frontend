@@ -13,6 +13,8 @@ editForm.addEventListener("submit", e => {
   editTodo(descriptionToEdit.dataset.id, descriptionToEdit.value);
 });
 
+const createTodoButton = document.getElementById("createTodoButton");
+
 const templateItem = document.getElementById("item");
 const todosTable = document.getElementById("todos-table");
 
@@ -32,38 +34,47 @@ function insertTodoInTable(todo) {
       "line-through";
   }
   todosTable.append(newTodo);
-  assignEventListeners();
+  assignEventListeners(todo._id);
 }
 
-function assignEventListeners() {
+function assignEventListeners(id) {
   const checks = document.getElementsByClassName("done");
   const edits = document.getElementsByClassName("edit");
   const deletes = document.getElementsByClassName("delete");
 
   for (let i = 0; i < checks.length; i++) {
     const check = checks[i];
-    check.addEventListener("change", () => {
-      if (check.checked) {
-        checkTodo(check._id, true);
-      } else {
-        checkTodo(check._id, false);
-      }
-      check.disabled = true;
-    });
+
+    if (check.dataset.id === id) {
+      check.addEventListener("click", () => {
+        if (check.checked) {
+          checkTodo(check.dataset.id, true);
+        } else {
+          checkTodo(check.dataset.id, false);
+        }
+      });
+    }
   }
 
   for (let i = 0; i < edits.length; i++) {
     const edit = edits[i];
-    edit.addEventListener("click", () => {
-      descriptionToEdit.dataset.id = edit.dataset.id;
-    });
+    if (!edit.hasListener) {
+      edit.addEventListener("click", () => {
+        descriptionToEdit.dataset.id = edit.dataset.id;
+        descriptionToEdit.value = "";
+      });
+      edit.hasListener = true;
+    }
   }
 
   for (let i = 0; i < deletes.length; i++) {
     const deleteBtn = deletes[i];
-    deleteBtn.addEventListener("click", () => {
-      deleteTodo(deleteBtn.dataset.id);
-    });
+    if (!deleteBtn.hasListener) {
+      deleteBtn.addEventListener("click", () => {
+        deleteTodo(deleteBtn.dataset.id);
+      });
+      deleteBtn.hasListener = true;
+    }
   }
 }
 
@@ -71,21 +82,20 @@ function updateTodoInTable(item) {
   const checks = document.getElementsByClassName("done");
   const descriptions = document.getElementsByClassName("description-item");
   for (let i = 0; i < checks.length; i++) {
-    console.log(checks[i].dataset.id === item._id);
     if (checks[i].dataset.id === item._id) {
       checks[i].checked = item.isDone;
-      checks[i].disabled = false;
+      break;
     }
-    break;
   }
 
   for (let i = 0; i < descriptions.length; i++) {
+    console.log(descriptions[i].dataset.id);
     if (descriptions[i].dataset.id === item._id) {
       descriptions[i].innerText = item.description;
       if (item.isDone) descriptions[i].style.textDecoration = "line-through";
       else descriptions[i].style.textDecoration = "none";
+      break;
     }
-    break;
   }
 }
 
